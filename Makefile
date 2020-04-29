@@ -1,3 +1,5 @@
+IMG ?= docker.io/renaultdigital/openldap_exporter:latest
+
 GITCOMMIT := $(shell git rev-parse --short HEAD 2>/dev/null)
 GIT_TAG := $(shell git describe --tags 2>/dev/null)
 
@@ -20,6 +22,14 @@ format:
 	@goimports -w -local github.com/tomcz/openldap_exporter $(shell find . -type f -name '*.go' | grep -v '/vendor/')
 
 compile = GOOS=$1 GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o target/openldap_exporter-$1 ./cmd/openldap_exporter
+
+# Build the docker image
+docker-build:
+	docker build . -t ${IMG}
+
+# Push the docker image
+docker-push:
+	docker push ${IMG}
 
 build: target
 	$(call compile,linux)
